@@ -1,7 +1,11 @@
-# Version 0.0.1
+# Version 0.0.2
 # Last update: 17.09.2022
-
+# UPDATES:
+# 1. Add "Reverse string" Method
+# 2.
+# n.
 from tkinter import *
+from Algs.reverse_string import reverse
 import base64
 
 root = Tk()
@@ -20,6 +24,7 @@ lblInfo = Label(Tops, text = "Message Encrypt/Decrypt \n", anchor = 'w')
 lblInfo.grid(row = 1, column = 0)
 
 rand = StringVar()
+rvrt = StringVar()
 Msg = StringVar()
 key = StringVar()
 mode = StringVar()
@@ -38,14 +43,21 @@ def reset():
     key.set("")
     mode.set("")
     Result.set("")
+    rvrt.set("")
 
 
 # labels
-lblMsg = Label(f1, text = "Message", anchor = "w")
-lblMsg.grid(row = 1, column = 0)
+lbl_Msg = Label(f1, text = "Message", anchor = "w")
+lbl_Msg.grid(row = 1, column = 0)
 
-txtMsg = Entry(f1, textvariable = Msg, insertwidth = 4)
-txtMsg.grid(row = 1, column = 1)
+txt_Msg = Entry(f1, textvariable = Msg, insertwidth = 4)
+txt_Msg.grid(row = 1, column = 1)
+
+lbl_rvrt = Label(f1, text = "Revert", anchor = "w")
+lbl_rvrt.grid(row = 1, column = 3)
+
+txt_rvrt = Entry(f1, textvariable = rvrt, insertwidth = 4)
+txt_rvrt.grid(row = 1, column = 4)
 
 lbl_key = Label(f1, text = "Key", bd = 16, anchor = "w")
 lbl_key.grid(row = 2, column = 0)
@@ -88,8 +100,10 @@ def decode(key_, enc):
 
 
 def callback():
-    print("Message = ", (Msg.get()))
-    clear = Msg.get()
+    msg = Msg.get()
+    print("Message = ", msg)
+    rvrt.set(reverse(msg))
+    clear = msg
     k = key.get()
     m = mode.get()
     if m == 'e':
