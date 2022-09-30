@@ -1,30 +1,27 @@
-# Version 0.0.3
-# Last update: 17.09.2022
+# Version 0.0.4
+# Last update: 30.09.2022
 # UPDATES:
-# 1. Add "Reverse string" Method
-# 2. Add "SHA-1" Algorithm
-# 3. Add except handler
+# 1. Add SHA-2 and SHA-3 Algorithms
+# 2. Write SHA's to file
+# 3. Change WM
+# 4. Minor Improvements
 from tkinter import *
-from Algs.reverse_string import reverse
-from Algs.sha1 import sha1_crypt
 import base64
 
+from Algs.reverse_string import reverse
+from Algs.sha1 import sha1_crypt
+from Algs.sha2 import sha2_512_crypt
+from Algs.sha3 import sha3_512_crypt
 
+
+# Config
 root = Tk()
-
-root.geometry("540x180")
+root.geometry("640x480")
 root.title("Shifr - message encryption and decryption")
 root.resizable(False, False)
 
-Tops = Frame(root, width = 1600, relief = SUNKEN)
-Tops.pack(side = TOP)
 
-f1 = Frame(root, width = 800, height = 700, relief = SUNKEN)
-f1.pack(side = LEFT)
-
-lblInfo = Label(Tops, text = "Message Encrypt/Decrypt \n", anchor = 'w')
-lblInfo.grid(row = 1, column = 0)
-
+# Vars
 rand = StringVar()
 rvrs = StringVar()
 Msg = StringVar()
@@ -32,6 +29,8 @@ key = StringVar()
 mode = StringVar()
 Result = StringVar()
 sha_1 = StringVar()
+sha_2_512 = StringVar()
+sha3_512 = StringVar()
 
 
 # exit function
@@ -48,44 +47,61 @@ def reset():
     Result.set("")
     rvrs.set("")
     sha_1.set("")
+    sha_2_512.set("")
+    sha3_512.set("")
 
 
 # Labels
-lbl_Msg = Label(f1, text = "Message", anchor = "w")
+lblInfo = Label(root, text = "Message Encrypt/Decrypt \n", anchor = 'w')
+lblInfo.grid(row = 0, column = 2)
+# Message
+lbl_Msg = Label(root, text = "Message", anchor = "w")
 lbl_Msg.grid(row = 1, column = 0)
 
-txt_Msg = Entry(f1, textvariable = Msg, insertwidth = 4)
+txt_Msg = Entry(root, textvariable = Msg, insertwidth = 4)
 txt_Msg.grid(row = 1, column = 1)
-
-lbl_rvrs = Label(f1, text = "Revert", anchor = "w")
-lbl_rvrs.grid(row = 1, column = 3)
-
-txt_rvrs = Entry(f1, textvariable = rvrs, insertwidth = 4)
-txt_rvrs.grid(row = 1, column = 4)
-
-lbl_key = Label(f1, text = "Key", bd = 16, anchor = "w")
+# Key
+lbl_key = Label(root, text = "Keyword", anchor = "w")
 lbl_key.grid(row = 2, column = 0)
 
-txt_key = Entry(f1, textvariable = key, insertwidth = 4)
+txt_key = Entry(root, textvariable = key, insertwidth = 4)
 txt_key.grid(row = 2, column = 1)
-
-lbl_mode = Label(f1, text = "Mode (e - encrypt, d - decrypt)", anchor = "w")
+# Mode
+lbl_mode = Label(root, text = "Mode (e - encrypt, d - decrypt)", anchor = "w")
 lbl_mode.grid(row = 3, column = 0)
 
-txt_mode = Entry(f1, textvariable = mode, insertwidth = 4)
+txt_mode = Entry(root, textvariable = mode, insertwidth = 4)
 txt_mode.grid(row = 3, column = 1)
+# Result
+lbl_res = Label(root, text = "Result", anchor = "w")
+lbl_res.grid(row = 4, column = 0)
 
-lbl_sha_1 = Label(f1, text = "SHA-1", anchor = "w")
+txt_res = Entry(root, textvariable = Result, insertwidth = 4)
+txt_res.grid(row = 4, column = 1)
+# Revert String
+lbl_rvrs = Label(root, text = "Revert", anchor = "w")
+lbl_rvrs.grid(row = 1, column = 3)
+
+txt_rvrs = Entry(root, textvariable = rvrs, insertwidth = 4)
+txt_rvrs.grid(row = 1, column = 4)
+# SHA-1
+lbl_sha_1 = Label(root, text = "SHA-1", anchor = "w")
 lbl_sha_1.grid(row = 2, column = 3)
 
-txt_sha_1 = Entry(f1, textvariable = sha_1, insertwidth = 4)
+txt_sha_1 = Entry(root, textvariable = sha_1, insertwidth = 4)
 txt_sha_1.grid(row = 2, column = 4)
+# SHA-2
+lbl_sha2_512 = Label(root, text = "SHA-2", anchor = "w")
+lbl_sha2_512.grid(row = 3, column = 3)
 
-lbl_res = Label(f1, text = "Result", anchor = "w")
-lbl_res.grid(row = 3, column = 3)
+txt_sha2_512 = Entry(root, textvariable = sha_2_512, insertwidth = 4)
+txt_sha2_512.grid(row = 3, column = 4)
 
-txt_res = Entry(f1, textvariable = Result, insertwidth = 4)
-txt_res.grid(row = 3, column = 4)
+lbl_sha3_512 = Label(root, text = "SHA-3", anchor = "w")
+lbl_sha3_512.grid(row = 4, column = 3)
+
+txt_sha3_512 = Entry(root, textvariable = sha3_512, insertwidth = 4)
+txt_sha3_512.grid(row = 4, column = 4)
 
 
 # Function to encode
@@ -112,9 +128,21 @@ def decode(key_, enc):
 def callback():
     try:
         msg = Msg.get()
-        # print("Message = ", msg)
         rvrs.set(reverse(msg))
         sha_1.set(sha1_crypt(msg))
+        sha_2_512.set(sha2_512_crypt(msg))
+        sha3_512.set(sha3_512_crypt(msg))
+
+        with open('output.txt', 'a') as out:
+            out.write("Message:" + msg + '\n')
+            out.write("Reverse:" + reverse(msg) + '\n')
+            out.write("SHA-1:" + sha1_crypt(msg) + '\n')
+            out.write("SHA-2:" + sha2_512_crypt(msg) + '\n')
+            out.write("SHA-3:" + sha3_512_crypt(msg) + '\n')
+            out.write('#' * 134 + '\n')
+            print("Codes will be successfully added to file 'output.txt'.")
+            out.close()
+
         clear = msg
         k = key.get()
         m = mode.get()
@@ -128,19 +156,23 @@ def callback():
         f.write(str(e)+'\n')
         f.close()
 
-
-# Show message button
-btnTotal = Button(f1, text = "Show Message", command = callback)
-btnTotal.grid(row = 4, column = 1)
-
-# Reset button
-btnReset = Button(f1, text = "Reset", command = reset)
-btnReset.grid(row = 4, column = 2)
-
-# Exit button
-btnExit = Button(f1, text = "Exit", command = qexit)
-btnExit.grid(row =4, column = 3)
+# Buttons
 
 
-# keeps window alive
+# Ok
+ok_b = Button(root, text = "OK", command = callback)
+ok_b.grid(row = 10, column = 1)
+
+
+# Reset
+reset_b = Button(root, text = "Reset", command = reset)
+reset_b.grid(row = 10, column = 2)
+
+
+# Exit
+exit_b = Button(root, text = "Exit", command = root.destroy)
+exit_b.grid(row = 10, column = 3)
+
+
+# Keeps window alive
 root.mainloop()
