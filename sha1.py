@@ -7,7 +7,7 @@ import hashlib
 def sha1_crypt(message):
     msg = hashlib.sha1(message.encode())
     return msg.hexdigest()
-    # return "Message:", message, "\nSHA-1:", msg.hexdigest()
+    # return "Message:", message, "\nSHA-1:", Msg.hexdigest()
 
 
 # Using:

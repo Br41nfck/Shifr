@@ -7,7 +7,7 @@ import hashlib
 def sha3_512_crypt(message):
     msg = hashlib.sha3_512(message.encode())
     return msg.hexdigest()
-    # return "Message:", message, "\nSHA-3:", msg.hexdigest()
+    # return "Message:", message, "\nSHA-3:", Msg.hexdigest()
 
 
 # Using:

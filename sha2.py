@@ -7,7 +7,7 @@ import hashlib
 def sha2_512_crypt(message):
     msg = hashlib.sha512(message.encode())
     return msg.hexdigest()
-    # return "Message:", message, "\nSHA-2:", msg.hexdigest()
+    # return "Message:", message, "\nSHA-2:", Msg.hexdigest()
 
 
 # Using:
