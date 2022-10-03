@@ -1,5 +1,5 @@
-# Version 0.0.5
-# Last update: 01.10.2022
+# Version 0.0.6
+# Last update: 03.10.2022
 from tkinter import *
 from tkinter import ttk
 
@@ -17,7 +17,6 @@ from Algs.sha3 import sha3_512_crypt
 root = Tk()
 width = 0
 height = 0
-
 root.title("Shifr - message encryption and decryption")
 root.resizable(False, False)
 notebook = ttk.Notebook(root)
@@ -64,16 +63,64 @@ def reset():
     lbl_chk['text'] = "Check"
 
 
+# Info messages
+def callback():
+    try:
+        msg = Msg.get()
+        res = result.get()
+        rvrs.set(reverse(msg))
+        sha_1.set(sha1_crypt(msg))
+        sha_2_512.set(sha2_512_crypt(msg))
+        sha3_512.set(sha3_512_crypt(msg))
+        md5.set(md5_crypt(msg))
+
+        sha1_msg = "SHA-1:" + sha1_crypt(msg) + '\n'
+        sha2_msg = "SHA-2:" + sha2_512_crypt(msg) + '\n'
+        sha3_msg = "SHA-3:" + sha3_512_crypt(msg) + '\n'
+        md5_msg = "MD5:" + md5_crypt(msg) + '\n'
+        reverse_msg = "Reverse:" + reverse(msg) + '\n'
+        message_msg = "Message:" + msg + '\n'
+        key_msg = "Key:" + key.get() + '\n'
+        result_msg = "Result:" + res + '\n'
+        clipboard.insert('1.0', '#' * 134 + '\n')
+        clipboard.insert('1.0', md5_msg)
+        clipboard.insert('1.0', sha3_msg)
+        clipboard.insert('1.0', sha2_msg)
+        clipboard.insert('1.0', sha1_msg)
+        clipboard.insert('1.0', reverse_msg)
+        clipboard.insert('1.0', key_msg)
+        clipboard.insert('1.0', result_msg)
+        clipboard.insert('1.0', message_msg)
+
+        clear = msg
+        k = key.get()
+        m = mode.get()
+        if m == 'e':
+            result.set(encode(k, clear))
+        else:
+            result.set(decode(k, clear))
+
+    except Exception as e:
+        f = open('logs.log', 'a')
+        f.write(str(e) + '\n')
+        f.close()
+
+
 # Labels
+
+# Info
 lblInfo = Label(crypto_frame, text = "Message Encrypt/Decrypt\n")
 lblInfo.pack()
 
 # Message
 lbl_Msg = Label(crypto_frame, text = "Message")
 lbl_Msg.pack()
-
+# Ok
 txt_Msg = Entry(crypto_frame, textvariable = Msg, insertwidth = 4)
 txt_Msg.pack(ipadx = 100)
+
+ok_b = Button(crypto_frame, text = "OK", command = callback)
+ok_b.pack()
 
 # Key
 lbl_key = Label(crypto_frame, text = "Keyword")
@@ -164,48 +211,34 @@ lbl_clpbrd.pack()
 clipboard = Text(crypto_frame, width = 150, height = 8)
 clipboard.pack()
 
+# Search
+lbl_search = Label(crypto_frame, text = "Search")
+lbl_search.pack(side = LEFT)
 
-# Info messages
-def callback():
-    try:
-        msg = Msg.get()
-        res = result.get()
-        rvrs.set(reverse(msg))
-        sha_1.set(sha1_crypt(msg))
-        sha_2_512.set(sha2_512_crypt(msg))
-        sha3_512.set(sha3_512_crypt(msg))
-        md5.set(md5_crypt(msg))
+search = Entry(crypto_frame, width = 15)
+search.pack(side = LEFT)
+search.focus_set()
 
-        sha1_msg = "SHA-1:" + sha1_crypt(msg) + '\n'
-        sha2_msg = "SHA-2:" + sha2_512_crypt(msg) + '\n'
-        sha3_msg = "SHA-3:" + sha3_512_crypt(msg) + '\n'
-        md5_msg = "MD5:" + md5_crypt(msg) + '\n'
-        reverse_msg = "Reverse:" + reverse(msg) + '\n'
-        message_msg = "Message:" + msg + '\n'
-        key_msg = "Key:" + key.get() + '\n'
-        result_msg = "Result:" + res + '\n'
-        clipboard.insert('1.0', '#' * 134 + '\n')
-        clipboard.insert('1.0', md5_msg)
-        clipboard.insert('1.0', sha3_msg)
-        clipboard.insert('1.0', sha2_msg)
-        clipboard.insert('1.0', sha1_msg)
-        clipboard.insert('1.0', reverse_msg)
-        clipboard.insert('1.0', key_msg)
-        clipboard.insert('1.0', result_msg)
-        clipboard.insert('1.0', message_msg)
 
-        clear = msg
-        k = key.get()
-        m = mode.get()
-        if m == 'e':
-            result.set(encode(k, clear))
-        else:
-            result.set(decode(k, clear))
+def find():
+    clipboard.tag_remove('found', '1.0', END)
+    srch = search.get()
+    if srch:
+        index = '1.0'
+        while 1:
+            index = clipboard.search(srch, index, stopindex=END)
+            if not index:
+                break
+            lastindex = '%s+%dc' % (index, len(srch))
+            clipboard.tag_add('found', index, lastindex)
+            index = lastindex
+            clipboard.see(index)
+        clipboard.tag_config('found', background='yellow')
+    clipboard.focus_set()
 
-    except Exception as e:
-        f = open('logs.log', 'a')
-        f.write(str(e) + '\n')
-        f.close()
+
+b_search = Button(crypto_frame, text = "Find", command = find)
+b_search.pack(side = LEFT)
 
 
 def delete():
@@ -214,9 +247,6 @@ def delete():
 
 # Buttons
 
-# Ok
-ok_b = Button(crypto_frame, text = "OK", command = callback)
-ok_b.pack(side = LEFT)
 
 # Reset
 reset_b = Button(crypto_frame, text = "Reset", command = reset)
