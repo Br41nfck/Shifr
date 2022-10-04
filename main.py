@@ -1,11 +1,12 @@
-# Version 0.0.6
-# Last update: 03.10.2022
+# Version 0.0.7
+# Last update: 04.10.2022
+import webbrowser
 from tkinter import *
 from tkinter import ttk
 
+# Internal functions
 from Algs.check_strong import password_check
 from Algs.create_email_and_password import start
-# Internal functions
 from Algs.encode_decode import encode, decode
 from Algs.md5 import md5_crypt
 from Algs.reverse_string import reverse
@@ -15,8 +16,8 @@ from Algs.sha3 import sha3_512_crypt
 
 # Consts
 root = Tk()
-width = 0
-height = 0
+width = 1920
+height = 1080
 root.title("Shifr - message encryption and decryption")
 root.resizable(False, False)
 notebook = ttk.Notebook(root)
@@ -25,12 +26,15 @@ notebook.pack()
 # Frames
 crypto_frame = Frame(notebook, width = width, height = height)
 password_frame = Frame(notebook, width = width, height = height)
-
+about_frame = Frame(notebook, width = width, height = height)
 crypto_frame.pack(fill = BOTH)
 password_frame.pack(fill = BOTH)
+about_frame.pack(fill = BOTH)
 
+# Tabs
 notebook.add(crypto_frame, text = "Cryptography")
 notebook.add(password_frame, text = "Password")
+notebook.add(about_frame, text = "About")
 
 # Vars
 rand = StringVar()
@@ -45,6 +49,17 @@ sha3_512 = StringVar()
 md5 = StringVar()
 password = StringVar()
 mail = StringVar()
+
+
+def error_handler(err):
+    window = Toplevel(root)
+    window.title("Error")
+    window.geometry('250x80')
+    window.focus_set()
+    lbl = Label(window, text = "Error. Unexpected: " + err)
+    lbl.pack()
+    b_exit = Button(window, text = "OK", command = window.destroy)
+    b_exit.pack()
 
 
 # Function to reset options
@@ -95,10 +110,12 @@ def callback():
         clear = msg
         k = key.get()
         m = mode.get()
-        if m == 'e':
+        if m == 'e' or m == '':
             result.set(encode(k, clear))
-        else:
+        elif m == 'd' or m == '':
             result.set(decode(k, clear))
+        else:
+            error_handler('key')
 
     except Exception as e:
         f = open('logs.log', 'a')
@@ -115,10 +132,12 @@ lblInfo.pack()
 # Message
 lbl_Msg = Label(crypto_frame, text = "Message")
 lbl_Msg.pack()
-# Ok
+
 txt_Msg = Entry(crypto_frame, textvariable = Msg, insertwidth = 4)
+txt_Msg.focus_set()
 txt_Msg.pack(ipadx = 100)
 
+# Ok
 ok_b = Button(crypto_frame, text = "OK", command = callback)
 ok_b.pack()
 
@@ -217,7 +236,6 @@ lbl_search.pack(side = LEFT)
 
 search = Entry(crypto_frame, width = 15)
 search.pack(side = LEFT)
-search.focus_set()
 
 
 def find():
@@ -239,6 +257,21 @@ def find():
 
 b_search = Button(crypto_frame, text = "Find", command = find)
 b_search.pack(side = LEFT)
+
+
+# ABOUT
+def open_url(url):
+    webbrowser.open_new(url)
+
+
+username_lbl = Label(about_frame, text = f"Author: Starcev Ilya")
+git_lbl = Label(about_frame, text = "Github Link: https://github.com/Br41nfck/Shifr", fg = 'blue')
+git_lbl.bind("<Button-1>", lambda e: open_url('https://github.com/Br41nfck/Shifr'))
+mail_lbl = Label(about_frame, text = "Mail: mailto:f4ck.br41n@gmail.com", fg = 'blue')
+mail_lbl.bind("<Button-1>", lambda e: open_url('mailto:f4ck.br41n@gmail.com'))
+username_lbl.pack()
+git_lbl.pack()
+mail_lbl.pack()
 
 
 def delete():
@@ -270,6 +303,9 @@ def save_to_file_crypto():
         out.write('#' * 134 + '\n')
         print("Codes will be successfully added to file 'output.txt'.")
         out.close()
+
+    if out.errors:
+        error_handler('file error')
 
 
 # Save Crypto result to file
